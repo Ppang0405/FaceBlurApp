@@ -61,55 +61,72 @@ function App(): React.JSX.Element {
     'worklet';
     frame.render();
 
-    const faces = detectFaces(frame);
+    // const faces = detectFaces(frame);
 
-    for (const face of faces) {
-      if (face.contours != null) {
-        // this is a foreground face, draw precise mask with edges
-        const path = Skia.Path.Make();
+    // for (const face of faces) {
+    //   if (face.contours != null) {
+    //     // this is a foreground face, draw precise mask with edges
+    //     const path = Skia.Path.Make();
 
-        const necessaryContours: (keyof Contours)[] = [
-          'FACE',
-          'LEFT_CHEEK',
-          'RIGHT_CHEEK',
-        ];
-        for (const key of necessaryContours) {
-          const points = face.contours[key];
-          points.forEach((point, index) => {
-            if (index === 0) {
-              // it's a starting point
-              path.moveTo(point.x, point.y);
-            } else {
-              // it's a continuation
-              path.lineTo(point.x, point.y);
-            }
-          });
-          path.close();
-        }
+    //     const necessaryContours: (keyof Contours)[] = [
+    //       'FACE',
+    //       'LEFT_CHEEK',
+    //       'RIGHT_CHEEK',
+    //     ];
+    //     for (const key of necessaryContours) {
+    //       const points = face.contours[key];
+    //       points.forEach((point, index) => {
+    //         if (index === 0) {
+    //           // it's a starting point
+    //           path.moveTo(point.x, point.y);
+    //         } else {
+    //           // it's a continuation
+    //           path.lineTo(point.x, point.y);
+    //         }
+    //       });
+    //       path.close();
+    //     }
 
-        frame.save();
-        frame.clipPath(path, ClipOp.Intersect, true);
-        frame.render(paint);
-        frame.restore();
-      } else {
-        // this is a background face, just use a simple blur circle
-        const path = Skia.Path.Make();
-        console.log(`Face at ${face.bounds.x}, ${face.bounds.y}`);
+    //     frame.save();
+    //     frame.clipPath(path, ClipOp.Intersect, true);
+    //     frame.render(paint);
+    //     frame.restore();
+    //   } else {
+    //     // this is a background face, just use a simple blur circle
+    //     const path = Skia.Path.Make();
+    //     console.log(`Face at ${face.bounds.x}, ${face.bounds.y}`);
 
-        const rect = Skia.XYWHRect(
-          face.bounds.x,
-          face.bounds.y,
-          face.bounds.width,
-          face.bounds.height,
-        );
-        path.addOval(rect);
+    //     const rect = Skia.XYWHRect(
+    //       face.bounds.x,
+    //       face.bounds.y,
+    //       face.bounds.width,
+    //       face.bounds.height,
+    //     );
+    //     path.addOval(rect);
 
-        frame.save();
-        frame.clipPath(path, ClipOp.Intersect, true);
-        frame.render(paint);
-        frame.restore();
-      }
-    }
+    //     frame.save();
+    //     frame.clipPath(path, ClipOp.Intersect, true);
+    //     frame.render(paint);
+    //     frame.restore();
+    //   }
+
+    // }
+
+    const path = Skia.Path.Make();
+    const rect = Skia.XYWHRect(
+      0,
+      0,
+      Dimensions.get('window').width,
+      Dimensions.get('window').height,
+    );
+    path.addOval(rect);
+
+    frame.save();
+    frame.clipPath(path, ClipOp.Intersect, true);
+    frame.render(paint);
+    frame.restore();
+
+    
   }, []);
 
   const flipCamera = useCallback(() => {
@@ -175,3 +192,62 @@ const styles = StyleSheet.create({
 });
 
 export default App;
+
+// import React, { useState, useEffect } from 'react';
+// import { View, Image, StyleSheet } from 'react-native';
+// import { Skia } from 'react-native-skia';
+
+// const LowResolutionEffect = () => {
+//   const [image, setImage] = useState(null);
+//   const [downsampleFactor, setDownsampleFactor] = useState(4);
+
+//   useEffect(() => {
+//     const imageSource = require('./image.jpg'); // Replace with your image path
+//     setImage(imageSource);
+//   }, []);
+
+//   const downsampleImage = () => {
+//     const image = new Skia.Image(image);
+//     const width = Math.floor(image.width() / downsampleFactor);
+//     const height = Math.floor(image.height() / downsampleFactor);
+//     const downsampledImage = new Skia.Image(width, height);
+//     const paint = new Skia.Paint();
+//     downsampledImage.draw(image, 0, 0, width, height, 0, 0, image.width(), image.height(), paint);
+//     return downsampledImage;
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       <Image source={image} style={styles.image} />
+//       <View style={styles.downsampleContainer}>
+//         <Image source={{ uri: downsampleImage().toUri() }} style={styles.downsampledImage} />
+//       </View>
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   image: {
+//     width: 200,
+//     height: 200,
+//   },
+//   downsampleContainer: {
+//     position: 'absolute',
+//     top: 0,
+//     left: 0,
+//     width: '100%',
+//     height: '100%',
+//     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+//   },
+//   downsampledImage: {
+//     width: '100%',
+//     height: '100%',
+//   },
+// });
+
+// export default LowResolutionEffect;
